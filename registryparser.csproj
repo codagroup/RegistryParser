@@ -11,6 +11,12 @@
     <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="Nfluent" Version="3.1.0" />
     <PackageReference Include="NUnit" Version="4.4.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="Nunit3TestAdapter" Version="6.1.0" />
+    <PackageReference Include="Nunit.Analyzers" Version="4.11.2">
+      <PrivateAssets>All</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

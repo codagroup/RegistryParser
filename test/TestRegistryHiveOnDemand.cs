@@ -1,6 +1,7 @@
-﻿using System.IO;
+﻿#region Usings
 using NFluent;
 using NUnit.Framework;
+#endregion
 
 namespace CODA.RegistryParser.Test;
 
@@ -10,7 +11,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void GetKeyShouldBeNullWithNonExistentPath()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key = samOnDemand.GetKey(@"SAM\Domains\Account\This\Does\Not\Exist");
 
         Check.That(key).IsNull();
@@ -19,7 +20,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void GetKeyShouldNotBeNullWithFullPath()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key =
             samOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains\Account");
@@ -30,7 +31,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void GetKeyShouldNotBeNullWithShortPath()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key = samOnDemand.GetKey(@"SAM\Domains\Account");
 
         Check.That(key).IsNotNull();
@@ -39,7 +40,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void GetKeyShouldNotBeNullWithShortPathMixedSpelling()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key = samOnDemand.GetKey(@"SAM\DomAins\AccoUnt");
 
         Check.That(key).IsNotNull();
@@ -48,7 +49,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void ShouldProcessLiListRecord()
     {
-        var usrClass1OnDemand = new RegistryHiveOnDemand(@"./hives/UsrClass 1.dat");
+        var usrClass1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/UsrClass 1.dat");
 
         var key =
             usrClass1OnDemand.GetKey(
@@ -61,7 +62,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void ShouldTakeByteArrayInConstructor()
     {
-        var fileStream = new FileStream(@"./hives/SAM", FileMode.Open, FileAccess.Read, FileShare.Read);
+        var fileStream = new FileStream($"{TestHelpers.HivePath}/SAM", FileMode.Open, FileAccess.Read, FileShare.Read);
         var binaryReader = new BinaryReader(fileStream);
 
         binaryReader.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -71,17 +72,17 @@ internal class TestRegistryHiveOnDemand
         binaryReader.Close();
         fileStream.Close();
 
-        var r = new RegistryHiveOnDemand(fileBytes, @"./hives/SAM");
+        var r = new RegistryHiveOnDemand(fileBytes, $"{TestHelpers.HivePath}/SAM");
 
         Check.That(r.Header).IsNotNull();
-        Check.That(r.HivePath).IsEqualTo(@"./hives/SAM");
+        Check.That(r.HivePath).IsEqualTo($"{TestHelpers.HivePath}/SAM");
         Check.That(r.HiveType).IsEqualTo(HiveTypeEnum.Sam);
     }
 
     [Test]
     public void TestFileNameConstructor()
     {
-        var r = new RegistryHiveOnDemand(@"./hives/SAM");
+        var r = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
 
         Check.That(r.Header).IsNotNull();
     }
@@ -89,7 +90,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void TestsListRecords()
     {
-        var driversOnDemand = new RegistryHiveOnDemand(@"./hives/DRIVERS");
+        var driversOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/DRIVERS");
 
         var key =
             driversOnDemand.GetKey(@"{15a87b70-bc78-114a-95b7-b90ca5d0ec00}\DriverDatabase\DeviceIds");
@@ -101,7 +102,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void TestsListRecordsContinued()
     {
-        var driversOnDemand = new RegistryHiveOnDemand(@"./hives/DRIVERS");
+        var driversOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/DRIVERS");
 
 
         var key = driversOnDemand.GetKey(@"{15a87b70-bc78-114a-95b7-b90ca5d0ec00}");
@@ -113,7 +114,7 @@ internal class TestRegistryHiveOnDemand
     [Test]
     public void TestsListRecordsContinued3()
     {
-        var usrClassFtp = new RegistryHiveOnDemand(@"./hives/UsrClass FTP.dat");
+        var usrClassFtp = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/UsrClass FTP.dat");
 
         var key =
             usrClassFtp.GetKey(

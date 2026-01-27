@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿#region Usings
 using NFluent;
 using NUnit.Framework;
 using CODA.RegistryParser.Cells;
+#endregion
 
 namespace CODA.RegistryParser.Test;
 
@@ -12,7 +12,7 @@ internal class TestVkCellRecord
     [Test]
     public void ShouldFindKeyValueAndCheckProperties()
     {
-        var sam = new RegistryHive(@"./hives/SAM");
+        var sam = new RegistryHive($"{TestHelpers.HivePath}/SAM");
         sam.FlushRecordListsAfterParse = false;
         sam.ParseHive();
 
@@ -93,7 +93,7 @@ internal class TestVkCellRecord
     [Test]
     public void ShouldFindRegBigEndianDWordValues()
     {
-        var samHasBigEndianOnDemand = new RegistryHiveOnDemand(@"./hives/SAM_hasBigEndianDWord");
+        var samHasBigEndianOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM_hasBigEndianDWord");
         var key =
             samHasBigEndianOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains\Account\Aliases");
@@ -104,14 +104,14 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDwordBigEndian);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((uint) 0);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((uint)0);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
     }
 
     [Test]
     public void ShouldFindRegBinaryValues()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Control Panel\Appearance\Schemes");
@@ -188,7 +188,7 @@ internal class TestVkCellRecord
     [Test]
     public void ShouldFindRegDWordValues()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Software\Microsoft\Wisp\Pen\SysEventParameters");
@@ -199,7 +199,7 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((uint) 20);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((uint)20);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
 
         key =
@@ -212,7 +212,7 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((uint) 0);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((uint)0);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
 
         key =
@@ -225,7 +225,7 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((uint) 1440);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((uint)1440);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
 
         key =
@@ -238,7 +238,7 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((uint) 500);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((uint)500);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
 
         key =
@@ -251,14 +251,14 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((uint) 16776960);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((uint)16776960);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
     }
 
     [Test]
     public void ShouldFindRegExpandSzValues()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Environment");
@@ -328,7 +328,7 @@ internal class TestVkCellRecord
     [Test]
     public void ShouldFindRegMultiSzValues()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Control Panel\International\User Profile");
@@ -343,7 +343,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
 
 
-        var usrclassAcronis = new RegistryHive(@"./hives/Acronis_0x52_Usrclass.dat");
+        var usrclassAcronis = new RegistryHive($"{TestHelpers.HivePath}/Acronis_0x52_Usrclass.dat");
         usrclassAcronis.RecoverDeleted = true;
         usrclassAcronis.FlushRecordListsAfterParse = false;
         usrclassAcronis.ParseHive();
@@ -361,7 +361,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.ValueData).IsEqualTo("en-US en");
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
 
-        var bcd = new RegistryHive(@"./hives/BCD");
+        var bcd = new RegistryHive($"{TestHelpers.HivePath}/BCD");
         bcd.FlushRecordListsAfterParse = false;
         bcd.RecoverDeleted = true;
         bcd.ParseHive();
@@ -397,7 +397,7 @@ internal class TestVkCellRecord
     [Test]
     public void ShouldFindRegQWordValues()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Software\Microsoft\Windows\Windows Error Reporting");
@@ -408,7 +408,7 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong) 130557640214774914);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong)130557640214774914);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
 
         key =
@@ -421,10 +421,10 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong) 0);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong)0);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
 
-        var usrclassAcronis = new RegistryHive(@"./hives/Acronis_0x52_Usrclass.dat");
+        var usrclassAcronis = new RegistryHive($"{TestHelpers.HivePath}/Acronis_0x52_Usrclass.dat");
         usrclassAcronis.RecoverDeleted = true;
         usrclassAcronis.FlushRecordListsAfterParse = false;
         usrclassAcronis.ParseHive();
@@ -439,10 +439,10 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong) 130294002389413697);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong)130294002389413697);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
 
-        var usrclassDeleted = new RegistryHive(@"./hives/UsrClassDeletedBags.dat");
+        var usrclassDeleted = new RegistryHive($"{TestHelpers.HivePath}/UsrClassDeletedBags.dat");
         usrclassDeleted.RecoverDeleted = true;
         usrclassDeleted.FlushRecordListsAfterParse = false;
         usrclassDeleted.ParseHive();
@@ -456,10 +456,10 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong) 130672934390152518);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong)130672934390152518);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
 
-        var ntUserSlack = new RegistryHive(@"./hives/NTUSER slack.DAT");
+        var ntUserSlack = new RegistryHive($"{TestHelpers.HivePath}/NTUSER slack.DAT");
         ntUserSlack.FlushRecordListsAfterParse = false;
         ntUserSlack.ParseHive();
 
@@ -473,14 +473,14 @@ internal class TestVkCellRecord
 
         Check.That(val).IsNotNull();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
-        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong) 127257359392030000);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong)127257359392030000);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
     }
 
     [Test]
     public void ShouldFindRegSzValues()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Software\Microsoft\CTF\Assemblies\0x00000409\{34745C63-B2F0-4784-8B67-5E12C8701A31}");
@@ -551,7 +551,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestUnicodeNameWhereSupposedToBeAscii()
     {
-        var ntUserSlack = new RegistryHive(@"./hives/NTUSER slack.DAT");
+        var ntUserSlack = new RegistryHive($"{TestHelpers.HivePath}/NTUSER slack.DAT");
         ntUserSlack.FlushRecordListsAfterParse = false;
         ntUserSlack.ParseHive();
 
@@ -559,14 +559,17 @@ internal class TestVkCellRecord
         var key = ntUserSlack.CellRecords[0x293490] as VkCellRecord;
 
         Check.That(key).IsNotNull();
-        Check.That(key.ValueName).IsNotEmpty();
-        Check.That(key.ValueData).IsNotNull();
+        if (key is not null)
+        {
+            Check.That(key.ValueName).IsNotEmpty();
+            Check.That(key.ValueData).IsNotNull();
+        }
     }
 
     [Test]
     public void TestVkRecordBigData()
     {
-        var softwareOnDemand = new RegistryHiveOnDemand(@"./hives/SOFTWARE");
+        var softwareOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SOFTWARE");
         var key =
             softwareOnDemand.GetKey(
                 @"CMI-CreateHive{199DAFC2-6F16-4946-BF90-5A3FC3A60902}\\Microsoft\\SystemCertificates\\AuthRoot\\AutoUpdate");
@@ -583,7 +586,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordFileTimeRegType()
     {
-        var systemOnDemand = new RegistryHiveOnDemand(@"./hives/SYSTEM");
+        var systemOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SYSTEM");
         var key =
             systemOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\ControlSet001\Control\DeviceContainers\{00000000-0000-0000-FFFF-FFFFFFFFFFFF}\Properties\{3464f7a4-2444-40b1-980a-e0903cb6d912}\0008");
@@ -605,8 +608,8 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.ValueData).IsInstanceOf<DateTimeOffset>();
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegFileTime);
         Check.That(val.VkRecord.DataTypeRaw).IsEqualTo(0x0010);
-        Check.That(val.VkRecord.DataLength).Equals((uint) 0x8);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x77d78);
+        Check.That(val.VkRecord.DataLength).Equals((uint)0x8);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x77d78);
         Check.That(val.VkRecord.Padding.Length).Equals(3);
         Check.That(val.VkRecord.ValueDataRaw.Length).IsEqualTo(8);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
@@ -616,7 +619,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordIsFreeDataBlockExceptions()
     {
-        var usrClass1 = new RegistryHive(@"./hives/UsrClass 1.dat");
+        var usrClass1 = new RegistryHive($"{TestHelpers.HivePath}/UsrClass 1.dat");
         usrClass1.RecoverDeleted = true;
         usrClass1.FlushRecordListsAfterParse = false;
         usrClass1.ParseHive();
@@ -625,14 +628,17 @@ internal class TestVkCellRecord
         var key = usrClass1.CellRecords[0x406180] as VkCellRecord;
 
         Check.That(key).IsNotNull();
-        Check.That(key.ValueDataRaw.Length).IsEqualTo(0);
-        Check.That(key.ValueData).IsNotNull();
+        if (key is not null)
+        {
+            Check.That(key.ValueDataRaw.Length).IsEqualTo(0);
+            Check.That(key.ValueData).IsNotNull();
+        }
     }
 
     [Test]
     public void TestVkRecordIsFreeLessDataThanDataLength2()
     {
-        var usrclassAcronis = new RegistryHive(@"./hives/Acronis_0x52_Usrclass.dat");
+        var usrclassAcronis = new RegistryHive($"{TestHelpers.HivePath}/Acronis_0x52_Usrclass.dat");
         usrclassAcronis.RecoverDeleted = true;
         usrclassAcronis.FlushRecordListsAfterParse = false;
         usrclassAcronis.ParseHive();
@@ -640,29 +646,31 @@ internal class TestVkCellRecord
         var val = usrclassAcronis.CellRecords[0x3f78] as VkCellRecord;
 
         Check.That(val).IsNotNull();
-
-        Check.That(val.RelativeOffset).IsEqualTo(0x3f78);
-        Check.That(val.AbsoluteOffset).IsEqualTo(0x4f78);
-        Check.That(val.ValueData).IsInstanceOf<byte[]>();
-        Check.That(val.Signature).IsEqualTo("vk");
-        Check.That(val.IsFree).IsTrue();
-        Check.That(val.NamePresentFlag).IsEqualTo(0x1);
-        Check.That(val.NameLength).IsEqualTo(37);
-        Check.That(val.ValueName).IsEqualTo(@"@C:\Windows\System32\netcenter.dll,-2");
-        Check.That(val.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegSz);
-        Check.That(val.DataTypeRaw).IsEqualTo(1);
-        Check.That(val.DataLength).Equals((uint) 196);
-        Check.That(val.OffsetToData).Equals((uint) 61872);
-        Check.That(val.Padding.Length).Equals(3);
-        Check.That(val.ValueDataSlack.Length).IsEqualTo(0);
-        Check.That(val.ValueDataRaw.Length).IsEqualTo(76);
-        Check.That(val.ToString()).IsNotEmpty();
+        if (val is not null)
+        {
+            Check.That(val.RelativeOffset).IsEqualTo(0x3f78);
+            Check.That(val.AbsoluteOffset).IsEqualTo(0x4f78);
+            Check.That(val.ValueData).IsInstanceOf<byte[]>();
+            Check.That(val.Signature).IsEqualTo("vk");
+            Check.That(val.IsFree).IsTrue();
+            Check.That(val.NamePresentFlag).IsEqualTo(0x1);
+            Check.That(val.NameLength).IsEqualTo(37);
+            Check.That(val.ValueName).IsEqualTo(@"@C:\Windows\System32\netcenter.dll,-2");
+            Check.That(val.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegSz);
+            Check.That(val.DataTypeRaw).IsEqualTo(1);
+            Check.That(val.DataLength).Equals((uint)196);
+            Check.That(val.OffsetToData).Equals((uint)61872);
+            Check.That(val.Padding.Length).Equals(3);
+            Check.That(val.ValueDataSlack.Length).IsEqualTo(0);
+            Check.That(val.ValueDataRaw.Length).IsEqualTo(76);
+            Check.That(val.ToString()).IsNotEmpty();
+        }
     }
 
     [Test]
     public void TestVkRecordQWordWithLengthOfZero()
     {
-        var samDupeNameOnDemand = new RegistryHiveOnDemand(@"./hives/SAM_DUPENAME");
+        var samDupeNameOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM_DUPENAME");
         var key =
             samDupeNameOnDemand.GetKey(
                 @"SAM\SAM\Domains\Builtin\Aliases\Members\S-1-5-21-4271176276-4210259494-4108073714");
@@ -684,10 +692,10 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
         Check.That(val.VkRecord.DataTypeRaw).IsEqualTo(11);
         Check.That(val.VkRecord.DataLength).Equals(0x80000000);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0);
         Check.That(val.VkRecord.Padding.Length).Equals(0);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<ulong>();
-        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong) 0);
+        Check.That(val.VkRecord.ValueData).IsEqualTo((ulong)0);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
         Check.That(val.VkRecord.ValueDataRaw.Length).IsEqualTo(0);
         Check.That(val.VkRecord.ToString()).IsNotEmpty();
@@ -696,7 +704,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegBinary()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key =
             samOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains\Account");
@@ -716,8 +724,8 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.NameLength).IsEqualTo(1);
         Check.That(val.VkRecord.ValueName).IsEqualTo("F");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegBinary);
-        Check.That(val.VkRecord.DataLength).Equals((uint) 0xf0);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x3098);
+        Check.That(val.VkRecord.DataLength).Equals((uint)0xf0);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x3098);
         Check.That(val.VkRecord.Padding.Length).Equals(7);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<byte[]>();
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(4);
@@ -728,7 +736,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegBinaryDeletedValue()
     {
-        var usrclassDeleted = new RegistryHive(@"./hives/UsrClassDeletedBags.dat");
+        var usrclassDeleted = new RegistryHive($"{TestHelpers.HivePath}/UsrClassDeletedBags.dat");
         usrclassDeleted.RecoverDeleted = true;
         usrclassDeleted.FlushRecordListsAfterParse = false;
         usrclassDeleted.ParseHive();
@@ -752,8 +760,8 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.NameLength).IsEqualTo(0x1);
         Check.That(val.VkRecord.ValueName).IsEqualTo("0");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegBinary);
-        Check.That(val.VkRecord.DataLength).Equals((uint) 0xE);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x5348);
+        Check.That(val.VkRecord.DataLength).Equals((uint)0xE);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x5348);
         Check.That(val.VkRecord.Padding.Length).Equals(7);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<byte[]>();
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(94);
@@ -764,7 +772,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegDWord()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key =
             samOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\LastSkuUpgrade");
@@ -785,7 +793,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.ValueName).IsEqualTo("(default)");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegDword);
         Check.That(val.VkRecord.DataLength).Equals(0x80000004);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x07);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x07);
         Check.That(val.ValueData).Equals("7");
         Check.That(val.VkRecord.Padding.Length).Equals(0);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<uint>();
@@ -797,7 +805,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegMultiSz()
     {
-        var usrClassDeletedBagsOnDemand = new RegistryHiveOnDemand(@"./hives/UsrClassDeletedBags.dat");
+        var usrClassDeletedBagsOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/UsrClassDeletedBags.dat");
         var key =
             usrClassDeletedBagsOnDemand.GetKey(
                 @"S-1-5-21-146151751-63468248-1215037915-1000_Classes\Local Settings\MuiCache\6\52C64B7E");
@@ -817,8 +825,8 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.NameLength).IsEqualTo(0xC);
         Check.That(val.VkRecord.ValueName).IsEqualTo("LanguageList");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegMultiSz);
-        Check.That(val.VkRecord.DataLength).Equals((uint) 0x14);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0xf70);
+        Check.That(val.VkRecord.DataLength).Equals((uint)0x14);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0xf70);
         Check.That(val.ValueData).Equals("en-US en");
         Check.That(val.VkRecord.Padding.Length).Equals(4);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<string>();
@@ -830,7 +838,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegNone()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key =
             samOnDemand.GetKey(@"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains");
 
@@ -850,7 +858,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.ValueName).IsEqualTo("(default)");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegNone);
         Check.That(val.VkRecord.DataLength).Equals(0x80000000);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x0);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x0);
         Check.That(val.VkRecord.Padding.Length).Equals(0);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<byte[]>();
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
@@ -861,7 +869,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegqWord()
     {
-        var ntUser1OnDemand = new RegistryHiveOnDemand(@"./hives/NTUSER1.DAT");
+        var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         var key =
             ntUser1OnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Software\Microsoft\Windows\CurrentVersion\Store\RefreshBannedAppList");
@@ -881,8 +889,8 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.NameLength).IsEqualTo(0x16);
         Check.That(val.VkRecord.ValueName).IsEqualTo("BannedAppsLastModified");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegQword);
-        Check.That(val.VkRecord.DataLength).Equals((uint) 0x8);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x3b70);
+        Check.That(val.VkRecord.DataLength).Equals((uint)0x8);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x3b70);
         Check.That(val.ValueData).Equals("0");
         Check.That(val.VkRecord.Padding.Length).Equals(2);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<ulong>();
@@ -894,7 +902,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegSz()
     {
-        var samOnDemand = new RegistryHiveOnDemand(@"./hives/SAM");
+        var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key =
             samOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains\Builtin\Aliases\Members\S-1-5-21-727398572-3617256236-2003601904\00000201");
@@ -915,7 +923,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.ValueName).IsEqualTo("(default)");
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegSz);
         Check.That(val.VkRecord.DataLength).Equals(0x80000004);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0x0221);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0x0221);
         Check.That(val.VkRecord.Padding.Length).Equals(0);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<string>();
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
@@ -926,7 +934,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordRegUnknown()
     {
-        var samHasBigEndianOnDemand = new RegistryHiveOnDemand(@"./hives/SAM_hasBigEndianDWord");
+        var samHasBigEndianOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM_hasBigEndianDWord");
         var key =
             samHasBigEndianOnDemand.GetKey(
                 @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains\Account\Groups\Names\None");
@@ -948,7 +956,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegUnknown);
         Check.That(val.VkRecord.DataTypeRaw).IsEqualTo(513);
         Check.That(val.VkRecord.DataLength).Equals(0x80000000);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0);
         Check.That(val.VkRecord.Padding.Length).Equals(0);
         Check.That(val.VkRecord.ValueData).IsInstanceOf<byte[]>();
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);
@@ -959,7 +967,7 @@ internal class TestVkCellRecord
     [Test]
     public void TestVkRecordUnknownRegType()
     {
-        var samDupeNameOnDemand = new RegistryHiveOnDemand(@"./hives/SAM_DUPENAME");
+        var samDupeNameOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM_DUPENAME");
         var key = samDupeNameOnDemand.GetKey(@"SAM\SAM\Domains\Account\Users");
 
         Check.That(key).IsNotNull();
@@ -980,7 +988,7 @@ internal class TestVkCellRecord
         Check.That(val.VkRecord.DataType).IsEqualTo(VkCellRecord.DataTypeEnum.RegUnknown);
         Check.That(val.VkRecord.DataTypeRaw).IsEqualTo(15);
         Check.That(val.VkRecord.DataLength).Equals(0x80000000);
-        Check.That(val.VkRecord.OffsetToData).Equals((uint) 0);
+        Check.That(val.VkRecord.OffsetToData).Equals((uint)0);
         Check.That(val.VkRecord.Padding.Length).Equals(0);
         Check.That(val.VkRecord.ValueDataRaw.Length).IsEqualTo(4);
         Check.That(val.VkRecord.ValueDataSlack.Length).IsEqualTo(0);

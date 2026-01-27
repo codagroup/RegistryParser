@@ -1,6 +1,8 @@
-﻿using NFluent;
+﻿#region Usings
+using NFluent;
 using NUnit.Framework;
 using CODA.RegistryParser.Cells;
+#endregion
 
 namespace CODA.RegistryParser.Test;
 
@@ -10,7 +12,7 @@ internal class TestNkCellRecord
     [Test]
     public void ShouldHavePaddingLengthOfZeroWhenRecordIsFree()
     {
-        var bcd = new RegistryHive(@"./hives/BCD");
+        var bcd = new RegistryHive($"{TestHelpers.HivePath}/BCD");
         bcd.FlushRecordListsAfterParse = false;
         bcd.RecoverDeleted = true;
         bcd.ParseHive();
@@ -24,7 +26,7 @@ internal class TestNkCellRecord
     [Test]
     public void ShouldHaveUnableToDetermineName()
     {
-        var usrClassBeef = new RegistryHive(@"./hives/UsrClass BEEF000E.dat");
+        var usrClassBeef = new RegistryHive($"{TestHelpers.HivePath}/UsrClass BEEF000E.dat");
         usrClassBeef.RecoverDeleted = true;
         usrClassBeef.FlushRecordListsAfterParse = false;
         usrClassBeef.ParseHive();
@@ -32,15 +34,17 @@ internal class TestNkCellRecord
         var key = usrClassBeef.CellRecords[0x783CD8] as NkCellRecord;
 
         Check.That(key).IsNotNull();
-
-        Check.That(key.Padding.Length).IsEqualTo(0);
-        Check.That(key.Name).IsEqualTo("(Unable to determine name)");
+        if (key is not null)
+        {
+            Check.That(key.Padding.Length).IsEqualTo(0);
+            Check.That(key.Name).IsEqualTo("(Unable to determine name)");
+        }
     }
 
     [Test]
     public void ShouldVerifyNkRecordProperties()
     {
-        var sam = new RegistryHive(@"./Hives/SAM");
+        var sam = new RegistryHive($"{TestHelpers.HivePath}/SAM");
         sam.FlushRecordListsAfterParse = false;
         sam.ParseHive();
 
@@ -57,7 +61,10 @@ internal class TestNkCellRecord
         Check.That(key.KeyName).IsEqualTo("Domains");
         Check.That(key.KeyPath).IsEqualTo(@"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\SAM\Domains");
         Check.That(key.LastWriteTime.HasValue).IsTrue();
-        Check.That(key.LastWriteTime.Value.ToString("MM-dd-yyyy")).IsEqualTo("07-03-2014");
+        if (key.LastWriteTime.HasValue)
+        {
+            Check.That(key.LastWriteTime.Value.ToString("MM-dd-yyyy")).IsEqualTo("07-03-2014");    
+        }
         Check.That(key.NkRecord.Size).IsEqualTo(0x58);
         Check.That(key.NkRecord.RelativeOffset).IsEqualTo(0x418);
         Check.That(key.NkRecord.AbsoluteOffset).IsEqualTo(0x1418);
