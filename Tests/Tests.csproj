@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+	  <PackageReference Include="Nfluent" Version="3.1.0" />
+	  <PackageReference Include="NUnit" Version="4.4.0" />
+	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+	  <PackageReference Include="Nunit3TestAdapter" Version="6.1.0" />
+	  <PackageReference Include="Nunit.Analyzers" Version="4.11.2">
+		  <PrivateAssets>All</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RegistryParser\RegistryParser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+</Project>
