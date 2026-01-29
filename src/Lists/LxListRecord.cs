@@ -1,7 +1,6 @@
 ﻿#region Usings
 using System.Text;
 using CODA.RegistryParser.Other;
-using NUnit.Framework;
 #endregion
 
 namespace CODA.RegistryParser.Lists;
