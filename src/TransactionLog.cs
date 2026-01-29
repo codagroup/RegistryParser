@@ -21,7 +21,6 @@ public class TransactionLog
         if (!HasValidSignature())
         {
             Log.Error("Data in byte array is not a Registry transaction log (bad signature)");
-
             throw new ArgumentException("Data in byte array is not a Registry transaction log (bad signature)");
         }
 
@@ -69,9 +68,9 @@ public class TransactionLog
     public byte[] FileBytes { get; }
 
     public string LogPath { get; }
-    public string Version { get; private set; }
+    public string Version { get; private set; } = "";
 
-    public RegistryHeader Header { get; set; }
+    public RegistryHeader? Header { get; set; }
     public HiveTypeEnum HiveType { get; private set; }
     public List<TransactionLogEntry> TransactionLogEntries { get; }
 
@@ -177,11 +176,7 @@ public class TransactionLog
                 break;
         }
 
-        //     Logger.Trace($"Hive is a {HiveType} hive");
-
         Version = $"{Header.MajorVersion}.{Header.MinorVersion}";
-
-        //    Logger.Trace($"Hive version is {version}");
     }
 
     public bool ParseLog()
@@ -192,7 +187,12 @@ public class TransactionLog
 
         while (index < FileBytes.Length)
         {
-            var sig = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(FileBytes, index, 4);
+            string sig = string.Empty;
+            Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+            if (encoding is not null)
+            {
+                sig = encoding.GetString(FileBytes, index, 4);
+            }
 
             if (sig != "HvLE")
                 //things arent always HvLE as logs get reused, so check to see if we have another valid header at our current offset
@@ -232,14 +232,13 @@ public class TransactionLog
                     $"0x{transactionLogEntry.SequenceNumber:X}");
                 continue;
             }
-            //     Logger.Trace($"Processing log entry: {transactionLogEntry}");
 
             NewSequenceNumber = transactionLogEntry.SequenceNumber;
 
-            foreach (var dirtyPage in transactionLogEntry.DirtyPages)
-                //     Logger.Trace($"Processing dirty page: {dirtyPage}");
-
-                Buffer.BlockCopy(dirtyPage.PageBytes, 0, hiveBytes, dirtyPage.Offset + baseOffset, dirtyPage.Size);
+            foreach (DirtyPageInfo dirtyPage in transactionLogEntry.DirtyPages)
+                {
+                    Buffer.BlockCopy(dirtyPage.PageBytes, 0, hiveBytes, dirtyPage.Offset + baseOffset, dirtyPage.Size);
+                }
         }
 
         return hiveBytes;
@@ -263,8 +262,10 @@ public class TransactionLog
             x += 1;
         }
 
-        return
-            $"Log path: {LogPath} Valid checksum: {Header.ValidateCheckSum()} primary: 0x{Header.PrimarySequenceNumber:X} secondary: 0x{Header.SecondarySequenceNumber:X} Entries count: {TransactionLogEntries.Count:N0} Entry info: {sb}";
+
+        return Header is not null ?
+            $"Log path: {LogPath} Valid checksum: {Header.ValidateCheckSum()} primary: 0x{Header.PrimarySequenceNumber:X} secondary: 0x{Header.SecondarySequenceNumber:X} Entries count: {TransactionLogEntries.Count:N0} Entry info: {sb}" :
+            $"Log path: {LogPath} Valid checksum: ERROR! primary: ERROR! secondary ERROR! Entries count: {TransactionLogEntries.Count:N0} Entry info: {sb}";
     }
     #endregion
 }

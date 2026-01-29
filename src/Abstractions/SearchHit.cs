@@ -17,7 +17,7 @@ public class SearchHit
     }
     #endregion
     #region Constructors
-    public SearchHit(RegistryKey key, KeyValue value, string hitstring, string decodedValue, HitType hitLocation)
+    public SearchHit(RegistryKey key, KeyValue? value, string hitstring, string decodedValue, HitType hitLocation)
     {
         Key = key;
         Value = value;
@@ -28,7 +28,7 @@ public class SearchHit
     #endregion
     #region Properties
     public RegistryKey Key { get; }
-    public KeyValue Value { get; }
+    public KeyValue? Value { get; }
     public string HitString { get; }
     public string DecodedValue { get; }
     public HitType HitLocation { get; set; }

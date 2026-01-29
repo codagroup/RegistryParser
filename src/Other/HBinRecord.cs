@@ -14,10 +14,9 @@ public class HBinRecord
     private readonly bool _recoverDeleted;
 
     private readonly RegistryHive _registryHive;
-    private byte[] _rawBytes;
+    private byte[]? _rawBytes;
     #endregion
     #region Constructors
-    // protected internal constructors...
     /// <summary>
     ///     Initializes a new instance of the <see cref="HBinRecord" /> class.
     ///     <remarks>Represents a Hive Bin Record</remarks>
@@ -118,7 +117,7 @@ public class HBinRecord
 
         while (offsetInHbin < Size)
         {
-            var recordSize = BitConverter.ToUInt32(_rawBytes, offsetInHbin);
+            var recordSize = BitConverter.ToUInt32(_rawBytes ?? [], offsetInHbin);
 
             var readSize = (int) recordSize;
 
@@ -132,14 +131,10 @@ public class HBinRecord
             // if we get a negative number here the record is allocated, but we cant read negative bytes, so get absolute value
             readSize = Math.Abs(readSize);
 
-            //           _registryHive.Logger.Trace(
-            //               $"Getting rawRecord at hbin relative offset 0x{offsetInHbin:X} (Absolute offset: 0x{offsetInHbin + RelativeOffset + 0x1000:X}). readsize: {readSize}");
-
-
             Log.Verbose("Processing hbin at relative offset {RelativeOffset} (Absolute offset: {AbsoluteOffset})",
                 $"0x{RelativeOffset:X}", $"0x{AbsoluteOffset:X}");
 
-            var rawRecord = new ArraySegment<byte>(_rawBytes, offsetInHbin, readSize).ToArray();
+            var rawRecord = new ArraySegment<byte>(_rawBytes ?? [], offsetInHbin, readSize).ToArray();
 
             _registryHive.TotalBytesRead += readSize;
 
@@ -151,9 +146,9 @@ public class HBinRecord
                 cellSignature2 = 0x0;
 
             
-            ICellTemplate cellRecord = null;
-            IListTemplate listRecord = null;
-            DataNode dataRecord = null;
+            ICellTemplate? cellRecord = null;
+            IListTemplate? listRecord = null;
+            DataNode? dataRecord = null;
 
             try
             {
@@ -233,7 +228,7 @@ public class HBinRecord
                 }
             }
 
-            List<IRecordBase> carvedRecords = null;
+            List<IRecordBase> carvedRecords = new List<IRecordBase>();
 
             if (cellRecord != null)
             {
@@ -269,17 +264,9 @@ public class HBinRecord
     {
         var records = new List<IRecordBase>();
 
-//            if (remainingData.Length == 4064 && _registryHive.HivePath.Contains("DeletedBags"))
-//            {
-//                Debug.WriteLine(1);
-//            }
-
         var offsetList2 = new List<int>();
 
-        byte[] raw = null;
-
-        //   _registryHive.Logger.Trace("Looking for cell signatures at absolute offset 0x{0:X}",
-        //          relativeoffset + 0x1000);
+        byte[]? raw = null;
 
         for (var i = 0; i < remainingData.Length; i++)
             if (remainingData[i] == 0x6b) //6b == k

@@ -33,9 +33,22 @@ public class KeyValue
     {
         get
         {
-            if (VkRecord.ValueData is byte[]) return BitConverter.ToString((byte[]) VkRecord.ValueData);
+            if (VkRecord.ValueData is not null)
+            {
 
-            return VkRecord.ValueData.ToString();
+                if (VkRecord.ValueData is byte[])
+                {
+                    return BitConverter.ToString((byte[])VkRecord.ValueData);
+                }
+                else
+                {
+                    return VkRecord.ValueData.ToString() ?? string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
     }
 

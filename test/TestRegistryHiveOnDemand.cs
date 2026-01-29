@@ -56,7 +56,10 @@ internal class TestRegistryHiveOnDemand
                 @"S-1-5-21-2417227394-2575385136-2411922467-1105_Classes\\ActivatableClasses\\Package\\Microsoft.BingSports_3.0.4.244_x64__8wekyb3d8bbwe\\ActivatableClassId");
 
         Check.That(key).IsNotNull();
-        Check.That(key.NkRecord.SubkeyCountsStable).IsEqualTo(0x224);
+        if (key is not null)
+        {
+            Check.That(key.NkRecord.SubkeyCountsStable).IsEqualTo(0x224);
+        }
     }
 
     [Test]
@@ -67,7 +70,7 @@ internal class TestRegistryHiveOnDemand
 
         binaryReader.BaseStream.Seek(0, SeekOrigin.Begin);
 
-        var fileBytes = binaryReader.ReadBytes((int) binaryReader.BaseStream.Length);
+        var fileBytes = binaryReader.ReadBytes((int)binaryReader.BaseStream.Length);
 
         binaryReader.Close();
         fileStream.Close();
@@ -96,7 +99,10 @@ internal class TestRegistryHiveOnDemand
             driversOnDemand.GetKey(@"{15a87b70-bc78-114a-95b7-b90ca5d0ec00}\DriverDatabase\DeviceIds");
 
         Check.That(key).IsNotNull();
-        Check.That(key.SubKeys.Count).IsEqualTo(3878);
+        if (key is not null)
+        {
+            Check.That(key.SubKeys.Count).IsEqualTo(3878);
+        }
     }
 
     [Test]
@@ -108,7 +114,10 @@ internal class TestRegistryHiveOnDemand
         var key = driversOnDemand.GetKey(@"{15a87b70-bc78-114a-95b7-b90ca5d0ec00}");
 
         Check.That(key).IsNotNull();
-        Check.That(key.SubKeys.Count).IsEqualTo(1);
+        if (key is not null)
+        {
+            Check.That(key.SubKeys.Count).IsEqualTo(1);
+        }
     }
 
     [Test]
@@ -121,6 +130,9 @@ internal class TestRegistryHiveOnDemand
                 @"S-1-5-21-2417227394-2575385136-2411922467-1105_Classes\ActivatableClasses\CLSID");
 
         Check.That(key).IsNotNull();
-        Check.That(key.SubKeys.Count).IsEqualTo(2811);
+        if (key is not null)
+        {
+            Check.That(key.SubKeys.Count).IsEqualTo(2811);
+        }
     }
 }

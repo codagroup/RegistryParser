@@ -4,6 +4,7 @@ using CODA.RegistryParser.Other;
 #endregion
 
 namespace CODA.RegistryParser;
+
 public class TransactionLogEntry
 {
     #region Fields
@@ -12,7 +13,12 @@ public class TransactionLogEntry
     #region Constructors
     public TransactionLogEntry(byte[] rawBytes)
     {
-        var sig = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(rawBytes, 0, 4);
+        string sig = string.Empty;
+        Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+        if (encoding is not null)
+        {
+            sig = encoding.GetString(rawBytes, 0, 4);
+        }
 
         if (sig != "HvLE") throw new Exception("Data is not a transaction log entry (bad signature)");
 
@@ -64,8 +70,11 @@ public class TransactionLogEntry
 
         //should be sitting at hbin
 
-        var hbinsig = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(rawBytes, index, 4);
-
+        string hbinsig = string.Empty;
+        if (encoding is not null)
+        {
+            hbinsig = encoding.GetString(rawBytes, index, 4);
+        }
         if (hbinsig != "hbin") throw new Exception($"hbin header not found at offset 0x{index}");
 
         //from here are hbins in order
@@ -107,7 +116,7 @@ public class TransactionLogEntry
 
         var aaa = Marvin.ComputeHash(ref b[0], b.Length, 0x82EF4D887A4E55C5);
 
-        return (ulong) aaa;
+        return (ulong)aaa;
     }
 
     private ulong CalculateHash2()
@@ -117,7 +126,7 @@ public class TransactionLogEntry
 
         var aaa = Marvin.ComputeHash(ref b[0], b.Length, 0x82EF4D887A4E55C5);
 
-        return (ulong) aaa;
+        return (ulong)aaa;
     }
 
     public override string ToString()

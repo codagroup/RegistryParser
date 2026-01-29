@@ -244,12 +244,14 @@ internal class TestRegistrySkeleton
         var key = newReg.GetKey(@"Local Settings\Software\Microsoft\Windows\CurrentVersion\TrayNotify");
 
         Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            var val = key.Values.Single(t => t.ValueName == "PastIconsStream");
 
-        var val = key.Values.Single(t => t.ValueName == "PastIconsStream");
-
-        Check.That(val).IsNotNull();
-        Check.That(val.ValueDataRaw.Length).IsEqualTo(52526);
-        Check.That(val.ValueSlackRaw.Length).IsEqualTo(13014);
+            Check.That(val).IsNotNull();
+            Check.That(val.ValueDataRaw.Length).IsEqualTo(52526);
+            Check.That(val.ValueSlackRaw.Length).IsEqualTo(13014);
+        }
     }
 
     [Test]
@@ -281,19 +283,22 @@ internal class TestRegistrySkeleton
                 @"Local Settings\Software\Microsoft\Windows\Shell\Bags\3\Shell\{5C4F28B5-F869-4E84-8E60-F11DB97C5CC7}");
 
         Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            var val = key.Values.Single(t => t.ValueName == "FFlags");
 
-        var val = key.Values.Single(t => t.ValueName == "FFlags");
-
-        Check.That(val).IsNotNull();
-
+            Check.That(val).IsNotNull();
+        }
         key = newReg.GetKey(@"Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell");
 
         Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            var val = key.Values.Single(t => t.ValueName == "ShowCmd");
 
-        val = key.Values.Single(t => t.ValueName == "ShowCmd");
-
-        Check.That(val).IsNotNull();
-        Check.That(val.ValueDataRaw.Length).IsEqualTo(4);
+            Check.That(val).IsNotNull();
+            Check.That(val.ValueDataRaw.Length).IsEqualTo(4);
+        }
     }
 
     [Test]
@@ -327,19 +332,23 @@ internal class TestRegistrySkeleton
                 @"Local Settings\Software\Microsoft\Windows\Shell\BagMRU\0\0");
 
         Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            var val = key.Values.Single(t => t.ValueName == "MRUListEx");
 
-        var val = key.Values.Single(t => t.ValueName == "MRUListEx");
-
-        Check.That(val).IsNotNull();
+            Check.That(val).IsNotNull();
+        }
 
         key = newReg.GetKey(@"Local Settings\Software\Microsoft\Windows\Shell\BagMRU\1\0\0");
 
         Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            var val = key.Values.Single(t => t.ValueName == "0");
 
-        val = key.Values.Single(t => t.ValueName == "0");
-
-        Check.That(val).IsNotNull();
-        Check.That(val.ValueDataRaw.Length).IsEqualTo(281);
+            Check.That(val).IsNotNull();
+            Check.That(val.ValueDataRaw.Length).IsEqualTo(281);
+        }
     }
 
     [Test]

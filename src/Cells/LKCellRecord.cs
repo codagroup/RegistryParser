@@ -97,12 +97,22 @@ public class LkCellRecord : ICellTemplate, IRecordBase
         NameLength = BitConverter.ToUInt16(rawBytes, 0x4c);
         ClassLength = BitConverter.ToUInt16(rawBytes, 0x4e);
 
-        //  if (Flags.ToString().Contains(FlagEnum.CompressedName.ToString()))
         if ((Flags & FlagEnum.CompressedName) == FlagEnum.CompressedName)
-            Name = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(rawBytes, 0x50, NameLength);
+        {
+            Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+            if (encoding is not null)
+            {
+                Name = encoding.GetString(rawBytes, 0x50, NameLength);
+            }
+            else
+            {
+                Name = string.Empty;
+            }
+        }
         else
+        {
             Name = Encoding.Unicode.GetString(rawBytes, 0x50, NameLength);
-
+        }
         var paddingOffset = 0x50 + NameLength;
         var paddingLength = Math.Abs(Size) - paddingOffset;
 
@@ -110,7 +120,10 @@ public class LkCellRecord : ICellTemplate, IRecordBase
         {
             Padding = new byte[paddingLength];
             Array.Copy(rawBytes, paddingOffset, Padding, 0, paddingLength);
-            //Padding = BitConverter.ToString(rawBytes, paddingOffset, paddingLength);
+        }
+        else
+        {
+            Padding = [];
         }
 
         //we have accounted for all bytes in this record. this ensures nothing is hidden in this record or there arent additional data structures we havent processed in the record.

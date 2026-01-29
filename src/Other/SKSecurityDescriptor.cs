@@ -52,7 +52,7 @@ public class SkSecurityDescriptor
     #region Properties
     public ControlEnum Control => (ControlEnum) BitConverter.ToUInt16(RawBytes, 0x02);
 
-    public XAclRecord Dacl
+    public XAclRecord? Dacl
     {
         get
         {
@@ -99,7 +99,7 @@ public class SkSecurityDescriptor
 
     public byte Revision => RawBytes[0];
 
-    public XAclRecord Sacl
+    public XAclRecord? Sacl
     {
         get
         {

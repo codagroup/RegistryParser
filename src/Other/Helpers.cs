@@ -1,10 +1,13 @@
 ﻿#region Usings
 using System.ComponentModel;
+using System.Data;
+using System.Reflection;
 using System.Text;
 using CODA.RegistryParser.Abstractions;
 #endregion
 
 namespace CODA.RegistryParser.Other;
+
 public static class Helpers
 {
     #region Enums
@@ -549,59 +552,45 @@ public static class Helpers
             sid = $"{sid}-{tempAuth}";
         } while (index < hex.Length);
 
-        //some tests
-        //var hexStr = BitConverter.ToString(hex);
-
-        //switch (hexStr)
-        //{
-        //    case "01-01-00-00-00-00-00-05-12-00-00-00":
-
-        //        Check.That(sid).IsEqualTo("S-1-5-18");
-
-        //        break;
-
-        //    case "01-02-00-00-00-00-00-05-20-00-00-00-20-02-00-00":
-
-        //        Check.That(sid).IsEqualTo("S-1-5-32-544");
-
-        //        break;
-
-        //    case "01-01-00-00-00-00-00-05-0C-00-00-00":
-        //        Check.That(sid).IsEqualTo("S-1-5-12");
-
-        //        break;
-        //    default:
-
-        //        break;
-        //}
-
-
         return sid;
     }
 
     public static string GetDescriptionFromEnumValue(Enum value)
     {
-        var attribute = value.GetType()
-            .GetField(value.ToString())
-            .GetCustomAttributes(typeof(DescriptionAttribute), false)
-            .SingleOrDefault() as DescriptionAttribute;
+        DescriptionAttribute? attribute = null;
+        if (value.GetType() is not null && value.GetType().GetField(value.ToString()) is not null)
+        {
+            FieldInfo? info = value.GetType().GetField(value.ToString());
+            if (info is not null)
+            {
+                attribute = info.GetCustomAttributes(typeof(DescriptionAttribute), false).SingleOrDefault() as DescriptionAttribute;
+            }
+        }
         return attribute == null ? value.ToString() : attribute.Description;
     }
 
-    public static T GetEnumValueFromDescription<T>(string description)
+    public static T? GetEnumValueFromDescription<T>(string description)
     {
         var type = typeof(T);
         if (!type.IsEnum) throw new ArgumentException();
 
-        var fields = type.GetFields();
+        FieldInfo[] fields = type.GetFields();
         var field = fields
             .SelectMany(f => f.GetCustomAttributes(
                 typeof(DescriptionAttribute), false), (
                 f, a) => new
-                {Field = f, Att = a})
-            .SingleOrDefault(a => ((DescriptionAttribute) a.Att)
+                { Field = f, Att = a })
+            .SingleOrDefault(a => ((DescriptionAttribute)a.Att)
                 .Description == description);
-        return field == null ? default : (T) field.Field.GetRawConstantValue();
+
+        if (field is not null && field.Field is not null && field.Field.GetRawConstantValue() is not null)
+        {
+            return (T)field.Field.GetRawConstantValue()!;
+        }
+        else
+        {
+            return default(T);
+        }
     }
 
     public static SidTypeEnum GetSidTypeFromSidString(string sid)

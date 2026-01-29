@@ -3,6 +3,7 @@ using NFluent;
 using NUnit.Framework;
 using CODA.RegistryParser.Lists;
 using CODA.RegistryParser.Other;
+using System.Data.Common;
 #endregion
 
 namespace CODA.RegistryParser.Test;
@@ -23,10 +24,12 @@ internal class TestRegistryOther
     {
         var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key = samOnDemand.GetKey(@"SAM\Domains\Account");
-
-        var exported = Helpers.ExportToReg(@"exportTest.reg", key, HiveTypeEnum.Sam, true);
-
-        Check.That(exported).IsTrue();
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            var exported = Helpers.ExportToReg(@"exportTest.reg", key, HiveTypeEnum.Sam, true);
+            Check.That(exported).IsTrue();
+        }
     }
 
     [Test]
@@ -34,61 +37,79 @@ internal class TestRegistryOther
     {
         var samOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM");
         var key = samOnDemand.GetKey(@"SAM\Domains\Account");
+        bool exported = false;
 
-        var exported = Helpers.ExportToReg(@"exportSamTest.reg", key, HiveTypeEnum.Sam, false);
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportSamTest.reg", key, HiveTypeEnum.Sam, false);
 
-        Check.That(exported).IsTrue();
+            Check.That(exported).IsTrue();
+        }
 
         var ntUser1OnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/NTUSER1.DAT");
         key = ntUser1OnDemand.GetKey(@"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Console");
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportntuser1Test.reg", key, HiveTypeEnum.NtUser, false);
 
-        exported = Helpers.ExportToReg(@"exportntuser1Test.reg", key, HiveTypeEnum.NtUser, false);
-
-        Check.That(exported).IsTrue();
+            Check.That(exported).IsTrue();
+        }
 
         var security = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SECURITY");
-        key =
-            security.GetKey(
-                @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Policy\Accounts\S-1-5-9");
+        key = security.GetKey(@"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\Policy\Accounts\S-1-5-9");
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportsecTest.reg", key, HiveTypeEnum.Security, false);
 
-        exported = Helpers.ExportToReg(@"exportsecTest.reg", key, HiveTypeEnum.Security, false);
-
-        Check.That(exported).IsTrue();
-
+            Check.That(exported).IsTrue();
+        }
         var systemOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SYSTEM");
-        key =
-            systemOnDemand.GetKey(
-                @"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\ControlSet001\Enum\ACPI\PNP0C02\1");
+        key = systemOnDemand.GetKey(@"CsiTool-CreateHive-{00000000-0000-0000-0000-000000000000}\ControlSet001\Enum\ACPI\PNP0C02\1");
 
-        exported = Helpers.ExportToReg(@"exportsysTest.reg", key, HiveTypeEnum.System, false);
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportsysTest.reg", key, HiveTypeEnum.System, false);
 
-        Check.That(exported).IsTrue();
+            Check.That(exported).IsTrue();
+        }
 
         var usrClassFtp = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/UsrClass FTP.dat");
         key = usrClassFtp.GetKey(@"S-1-5-21-2417227394-2575385136-2411922467-1105_Classes\.3g2");
 
-        exported = Helpers.ExportToReg(@"exportusrTest.reg", key, HiveTypeEnum.UsrClass, false);
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportusrTest.reg", key, HiveTypeEnum.UsrClass, false);
 
-        Check.That(exported).IsTrue();
+            Check.That(exported).IsTrue();
+        }
 
         var samDupeNameOnDemand = new RegistryHiveOnDemand($"{TestHelpers.HivePath}/SAM_DUPENAME");
         key = samDupeNameOnDemand.GetKey(@"SAM\SAM\Domains\Account\Aliases\000003E9");
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportotherTest.reg", key, HiveTypeEnum.Other, false);
 
-        exported = Helpers.ExportToReg(@"exportotherTest.reg", key, HiveTypeEnum.Other, false);
-
-        Check.That(exported).IsTrue();
+            Check.That(exported).IsTrue();
+        }
 
         var usrclassDeleted = new RegistryHive($"{TestHelpers.HivePath}/UsrClassDeletedBags.dat");
         usrclassDeleted.RecoverDeleted = true;
         usrclassDeleted.FlushRecordListsAfterParse = false;
         usrclassDeleted.ParseHive();
-        key =
-            usrclassDeleted.GetKey(
-                @"S-1-5-21-146151751-63468248-1215037915-1000_Classes\Local Settings\Software\Microsoft\Windows\Shell\BagMRU\1");
+        key = usrclassDeleted.GetKey(@"S-1-5-21-146151751-63468248-1215037915-1000_Classes\Local Settings\Software\Microsoft\Windows\Shell\BagMRU\1");
+        Check.That(key).IsNotNull();
+        if (key is not null)
+        {
+            exported = Helpers.ExportToReg(@"exportDeletedTest.reg", key, HiveTypeEnum.UsrClass, false);
 
-        exported = Helpers.ExportToReg(@"exportDeletedTest.reg", key, HiveTypeEnum.UsrClass, false);
-
-        Check.That(exported).IsTrue();
+            Check.That(exported).IsTrue();
+        }
     }
 
     [Test]

@@ -1,9 +1,11 @@
 ﻿#region Usings
 using System.Text;
 using CODA.RegistryParser.Other;
+using NUnit.Framework;
 #endregion
 
 namespace CODA.RegistryParser.Lists;
+
 public class LxListRecord : IListTemplate, IRecordBase
 {
     #region Fields
@@ -43,7 +45,7 @@ public class LxListRecord : IListTemplate, IRecordBase
             {
                 if (index >= RawBytes.Length)
                     // i have seen cases where there isnt enough data, so get what we can
-                    break; 
+                    break;
 
                 var os = BitConverter.ToUInt32(RawBytes, index);
                 index += 4;
@@ -51,12 +53,19 @@ public class LxListRecord : IListTemplate, IRecordBase
                 var hash = string.Empty;
 
                 if (Signature == "lf")
-                    //first 4 chars of string
-                    hash = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(RawBytes, index, 4);
+                {
+                    Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+                    if (encoding is not null)
+                    {
+                        //first 4 chars of string
+                        hash = encoding.GetString(RawBytes, index, 4);
+                    }
+                }
                 else
+                {
                     //numerical hash
                     hash = BitConverter.ToUInt32(RawBytes, index).ToString();
-
+                }
                 index += 4;
 
                 offsets.Add(os, hash);
@@ -114,13 +123,13 @@ public class LxListRecord : IListTemplate, IRecordBase
         sb.AppendLine("------------ End of offsets ------------");
         sb.AppendLine();
 
-        
+
         if (IsFree)
         {
             sb.AppendLine($"Raw Bytes: {BitConverter.ToString(RawBytes)}");
             sb.AppendLine();
         }
-        
+
 
         return sb.ToString();
     }

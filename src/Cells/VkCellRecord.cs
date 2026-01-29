@@ -183,9 +183,9 @@ public class VkCellRecord : ICellTemplate, IRecordBase
         //force to a known datatype 
         var dataTypeInternal = DataTypeRaw;
 
-        if (dataTypeInternal > (ulong) DataTypeEnum.RegUwpArrayRect) dataTypeInternal = 999;
+        if (dataTypeInternal > (ulong)DataTypeEnum.RegUwpArrayRect) dataTypeInternal = 999;
 
-        DataType = (DataTypeEnum) dataTypeInternal;
+        DataType = (DataTypeEnum)dataTypeInternal;
     }
     #endregion
     #region Properties
@@ -203,7 +203,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                     _dataLengthInternal = 4;
                 //Since its resident, the data lives in the OffsetToData.
 
-                datablockRaw = new ArraySegment<byte>(RawBytes, 0xC, (int) _dataLengthInternal).ToArray();
+                datablockRaw = new ArraySegment<byte>(RawBytes, 0xC, (int)_dataLengthInternal).ToArray();
 
                 //set our data length to what is available since its resident and unknown. it can be used for anything
                 if (DataType == DataTypeEnum.RegUnknown) _dataLengthInternal = 4;
@@ -245,7 +245,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                 if (IsFree && dataBlockSize > DataLength * 100)
                     //safety net to avoid crazy large reads that just fail
                     //find out the next highest multiple of 8 based on DataLength for a best guess, with 32 extra bytes to spare
-                    dataBlockSize = (int) (Math.Ceiling((double) DataLength / 8) * 8) + 32;
+                    dataBlockSize = (int)(Math.Ceiling((double)DataLength / 8) * 8) + 32;
 
                 if (IsFree && dataBlockSize == DataLength) dataBlockSize += 4;
 
@@ -301,7 +301,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                     //data block Raw now contains our list of pointers to fragmented Data
 
                     //make a place to reassemble things
-                    var bigDataRaw = new ArrayList((int) _dataLengthInternal);
+                    var bigDataRaw = new ArrayList((int)_dataLengthInternal);
 
                     for (var i = 1; i <= db.NumberOfEntries; i++)
                     {
@@ -333,7 +333,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                         }
                     }
 
-                    datablockRaw = (byte[]) bigDataRaw.ToArray(typeof(byte));
+                    datablockRaw = (byte[])bigDataRaw.ToArray(typeof(byte));
 
                     //reset this so slack calculation works
                     //dataBlockSize = data block Raw.Length;
@@ -355,7 +355,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
         {
             var paddingOffset = 0x18 + NameLength;
 
-            var paddingBlock = (int) Math.Ceiling((double) paddingOffset / 8);
+            var paddingBlock = (int)Math.Ceiling((double)paddingOffset / 8);
 
             var actualPaddingOffset = paddingBlock * 8;
 
@@ -412,7 +412,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
             try
             {
                 val = DataBlockRaw;
-                localDbl = (byte[]) val; // DataBlockRaw;
+                localDbl = (byte[])val; // DataBlockRaw;
 
                 //  _logger.Debug($"\r\n ValueName: {ValueName}   LocalDbl is null?: {localDBL == null}");
                 //  _logger.Debug($"Local dbt len is {localDBL.Length}, _internalDoffset: {_internalDataOffset}, _datalenInternal: {_dataLengthInternal}, LocalDblBytes: {BitConverter.ToString(localDBL)} ");
@@ -435,14 +435,14 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                 {
                     case DataTypeEnum.RegFileTime:
                         var ts = BitConverter.ToUInt64(localDbl, _internalDataOffset);
-                        val = DateTimeOffset.FromFileTime((long) ts).ToUniversalTime();
+                        val = DateTimeOffset.FromFileTime((long)ts).ToUniversalTime();
                         break;
 
                     case DataTypeEnum.RegExpandSz:
                     case DataTypeEnum.RegMultiSz:
                     case DataTypeEnum.RegSz:
                         var tempVal = Encoding.Unicode.GetString(localDbl, _internalDataOffset,
-                            (int) _dataLengthInternal);
+                            (int)_dataLengthInternal);
                         var nullIndex = tempVal.IndexOf("\0\0", StringComparison.Ordinal);
                         if (nullIndex > -1)
                         {
@@ -454,8 +454,15 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                         {
                             val = tempVal;
                         }
-
-                        val = val.ToString().Trim('\0');
+                        if (val is null)
+                        {
+                            val = '\0';
+                        }
+                        else
+                        {
+                            string s = val!.ToString()!.Trim('\0');
+                            val = s;
+                        }
                         break;
 
                     case DataTypeEnum.RegNone: // spec says RegNone means "No defined data type", and not "no data"
@@ -465,7 +472,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                     case DataTypeEnum.RegFullResourceDescription:
                         val =
                             new ArraySegment<byte>(localDbl, _internalDataOffset,
-                                    (int) _dataLengthInternal)
+                                    (int)_dataLengthInternal)
                                 .ToArray();
                         break;
 
@@ -491,11 +498,11 @@ public class VkCellRecord : ICellTemplate, IRecordBase
 
                     case DataTypeEnum.RegLink:
                         val =
-                            Encoding.Unicode.GetString(localDbl, _internalDataOffset, (int) _dataLengthInternal)
+                            Encoding.Unicode.GetString(localDbl, _internalDataOffset, (int)_dataLengthInternal)
                                 .Replace("\0", " ")
                                 .Trim();
                         break;
-                        
+
                     case DataTypeEnum.RegUwpByte:
                         val = $"0x{localDbl[_internalDataOffset]:X2}";
                         break;
@@ -720,7 +727,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                         var valPoint = new List<string>();
                         for (var i = 0; i < numRecs; i++)
                         {
-                            valPoint.Add($"{{X: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i*8))}, Y: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 4)}}}");
+                            valPoint.Add($"{{X: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8))}, Y: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 4)}}}");
                         }
                         val = string.Format("[{0}]", string.Join(",", valPoint));
                         break;
@@ -729,7 +736,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                         var valSize = new List<string>();
                         for (var i = 0; i < numRecs; i++)
                         {
-                            valSize.Add($"{{Width: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i*8))}, Height: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 4)}}}");
+                            valSize.Add($"{{Width: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8))}, Height: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 4)}}}");
                         }
                         val = string.Format("[{0}]", string.Join(",", valSize));
                         break;
@@ -738,7 +745,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                         var valRect = new List<string>();
                         for (var i = 0; i < numRecs; i++)
                         {
-                            valRect.Add($"{{X: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i*8))}, Y: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 4)}, Width: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 8)}, Height: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 12)}}}");
+                            valRect.Add($"{{X: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8))}, Y: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 4)}, Width: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 8)}, Height: {BitConverter.ToSingle(localDbl, _internalDataOffset + (i * 8) + 12)}}}");
                         }
                         val = string.Format("[{0}]", string.Join(",", valRect));
                         break;
@@ -803,7 +810,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
             else
             {
                 return new ArraySegment<byte>(DataBlockRaw, _internalDataOffset,
-                    (int) _dataLengthInternal).ToArray();
+                    (int)_dataLengthInternal).ToArray();
             }
 
             if (IsFree) return Array.Empty<byte>();
@@ -821,7 +828,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
 
             if (dbRaw.Length > _dataLengthInternal + _internalDataOffset)
             {
-                var slackStart = (int) (_dataLengthInternal + _internalDataOffset);
+                var slackStart = (int)(_dataLengthInternal + _internalDataOffset);
                 var slackLen = dbRaw.Length - slackStart;
 
                 return
@@ -849,15 +856,19 @@ public class VkCellRecord : ICellTemplate, IRecordBase
             {
                 if (NamePresentFlag > 0)
                 {
+                    Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
                     if (IsFree)
                     {
+
                         //make sure we have enough data
                         if (RawBytes.Length >= NameLength + 0x18)
-                            valName = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(RawBytes, 0x18, NameLength);
+                        {
+                            valName = encoding!.GetString(RawBytes, 0x18, NameLength);
+                        }
                     }
                     else
                     {
-                        valName = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(RawBytes, 0x18, NameLength);
+                        valName = encoding!.GetString(RawBytes, 0x18, NameLength);
                     }
                 }
                 else
@@ -957,13 +968,13 @@ public class VkCellRecord : ICellTemplate, IRecordBase
             case DataTypeEnum.RegResourceList:
             case DataTypeEnum.RegResourceRequirementsList:
             case DataTypeEnum.RegFullResourceDescription:
-                sb.AppendLine($"Value Data: {BitConverter.ToString((byte[]) ValueData)}");
+                sb.AppendLine($"Value Data: {BitConverter.ToString((byte[])ValueData)}");
                 break;
 
             case DataTypeEnum.RegFileTime:
                 if (ValueData != null)
                 {
-                    var dto = (DateTimeOffset) ValueData;
+                    var dto = (DateTimeOffset)ValueData;
 
                     sb.AppendLine($"Value Data: {dto}");
                 }
@@ -976,7 +987,7 @@ public class VkCellRecord : ICellTemplate, IRecordBase
                 sb.AppendLine($"Value Data: {ValueData:N}");
                 break;
             default:
-                sb.AppendLine($"Value Data: {BitConverter.ToString((byte[]) ValueData)}");
+                sb.AppendLine($"Value Data: {BitConverter.ToString((byte[])ValueData)}");
                 break;
         }
 

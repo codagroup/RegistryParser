@@ -14,6 +14,7 @@ public class RegistryBase : IRegistry
         throw new NotSupportedException("Call the other constructor and pass in the path to the Registry hive!");
     }
 
+    #pragma warning disable CS8618 // Non-nullable properties Header & Version are set by the Initialize() function.
     public RegistryBase(byte[] rawBytes, string hivePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -32,7 +33,8 @@ public class RegistryBase : IRegistry
 
         Initialize();
     }
-
+    #pragma warning restore CS8618
+    #pragma warning disable CS8618 // Non-nullable properties Header & Version are set by the Initialize() function.
     public RegistryBase(string hivePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -64,10 +66,9 @@ public class RegistryBase : IRegistry
 
         HivePath = hivePath;
 
-        //    Logger.Trace("Set HivePath to {0}", hivePath);
-
         Initialize();
     }
+    #pragma warning restore CS8618
     #endregion
     #region Properties
     public long TotalBytesRead { get; internal set; }
@@ -100,8 +101,6 @@ public class RegistryBase : IRegistry
     internal void Initialize()
     {
         var header = ReadBytesFromHive(0, 4096);
-
-        //    Logger.Trace("Getting header");
 
         Header = new RegistryHeader(header);
 
@@ -182,11 +181,7 @@ public class RegistryBase : IRegistry
                 break;
         }
 
-        //    Logger.Trace("Hive is a {0} hive", HiveType);
-
         Version = $"{Header.MajorVersion}.{Header.MinorVersion}";
-
-        //   Logger.Trace("Hive version is {0}", version);
     }
 
     public bool HasValidSignature()

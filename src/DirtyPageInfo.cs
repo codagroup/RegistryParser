@@ -16,7 +16,7 @@ public class DirtyPageInfo
     /// <summary>
     ///     Contains the bytes to be overwritten at Offset in the original hive (from the start of hbins)
     /// </summary>
-    public byte[] PageBytes { get; private set; }
+    public byte[] PageBytes { get; private set; } = [];
 
     /// <summary>
     ///     Updates PageBytes to contain the data to be used when overwriting part of an original hive

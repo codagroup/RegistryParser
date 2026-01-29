@@ -4,6 +4,7 @@ using CODA.RegistryParser.Other;
 #endregion
 
 namespace CODA.RegistryParser.Cells;
+
 public class SkCellRecord : ICellTemplate, IRecordBase
 {
     #region Fields
@@ -28,7 +29,7 @@ public class SkCellRecord : ICellTemplate, IRecordBase
 
         if (paddingLength > 0)
         {
-            var padding = rawBytes.Skip((int) paddingOffset).Take((int) paddingLength).ToArray();
+            var padding = rawBytes.Skip((int)paddingOffset).Take((int)paddingLength).ToArray();
 
             //Check.That(Array.TrueForAll(padding, a => a == 0));
         }
@@ -60,17 +61,21 @@ public class SkCellRecord : ICellTemplate, IRecordBase
     /// <summary>
     ///     The security descriptor object for this record
     /// </summary>
-    public SkSecurityDescriptor SecurityDescriptor
+    public SkSecurityDescriptor? SecurityDescriptor
     {
         get
         {
-            var rawDescriptor = RawBytes.Skip(0x18).Take((int) DescriptorLength).ToArray();
+            var rawDescriptor = RawBytes.Skip(0x18).Take((int)DescriptorLength).ToArray();
 
             if (rawDescriptor.Length > 0)
+            {
                 // i have seen cases where there is no available security descriptor because the sk record doesn't contain the right data
                 return new SkSecurityDescriptor(rawDescriptor);
-
-            return null; 
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 

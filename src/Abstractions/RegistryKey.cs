@@ -21,8 +21,8 @@ public class RegistryKey
     #region Fields
     private string _keyPath;
     #endregion
-#region Constructors
-    public RegistryKey(NkCellRecord nk, RegistryKey parent)
+    #region Constructors
+    public RegistryKey(NkCellRecord nk, RegistryKey? parent)
     {
         NkRecord = nk;
 
@@ -34,12 +34,13 @@ public class RegistryKey
         Values = new List<KeyValue>();
 
         ClassName = string.Empty;
+        _keyPath = string.Empty;
     }
     #endregion
     #region Properties
     public string ClassName { get; set; }
 
-    public RegistryKey Parent { get; set; }
+    public RegistryKey? Parent { get; set; }
 
     /// <summary>
     ///     A unique value that can be used to find this key in a collection
@@ -60,15 +61,21 @@ public class RegistryKey
     {
         get
         {
-            if (_keyPath != null)
+            if (_keyPath != string.Empty)
+            {
                 //sometimes we have to update the path elsewhere, so if that happens, return it
                 return _keyPath;
+            }
 
-            if (Parent == null)
+            else if (Parent == null)
+            {
                 //This is the root key
                 return $"{KeyName}";
-
-            return $@"{Parent.KeyPath}\{KeyName}";
+            }
+            else
+            {
+                return $@"{Parent.KeyPath}\{KeyName}";
+            }
         }
 
         set => _keyPath = value;
@@ -145,8 +152,14 @@ public class RegistryKey
 
         sb.AppendLine();
         sb.AppendLine(keyName);
-        sb.AppendLine($";Last write timestamp {LastWriteTime.Value.UtcDateTime.ToString("o")}");
-        //sb.AppendLine($";Last write timestamp {LastWriteTime.Value.UtcDateTime.ToString("o")}");
+        if (LastWriteTime.HasValue)
+        {
+            sb.AppendLine($";Last write timestamp {LastWriteTime.Value.UtcDateTime.ToString("o")}");
+        }
+        else
+        {
+            sb.AppendLine($";Last write timestamp unknown");
+        }
 
         foreach (var keyValue in Values)
         {
@@ -178,7 +191,7 @@ public class RegistryKey
                 case VkCellRecord.DataTypeEnum.RegLink:
                 case VkCellRecord.DataTypeEnum.RegResourceRequirementsList:
                 case VkCellRecord.DataTypeEnum.RegExpandSz:
-                    var prefix = $"hex({(int) keyValue.VkRecord.DataType:x}):";
+                    var prefix = $"hex({(int)keyValue.VkRecord.DataType:x}):";
                     keyValueOut =
                         $"{prefix}{BitConverter.ToString(keyValue.ValueDataRaw).Replace("-", ",")}".ToLowerInvariant
                             ();
@@ -247,7 +260,7 @@ public class RegistryKey
 
         return ret.ToLowerInvariant();
     }
-   
+
     public override string ToString()
     {
         var sb = new StringBuilder();
@@ -293,9 +306,15 @@ public class RegistryKey
     }
     public object GetValue(string keyName)
     {
-        return Values
-            ?.FirstOrDefault(v => v.ValueName.Equals(keyName, StringComparison.OrdinalIgnoreCase))
-            ?.ValueData;
+        if (Values is not null)
+        {
+            KeyValue? kv = Values.FirstOrDefault(v => v.ValueName.Equals(keyName, StringComparison.OrdinalIgnoreCase));
+            if (kv is not null)
+            {
+                return kv.ValueData;
+            }
+        }
+        return new();
     }
     public object GetValue(string keyName, object defaultValue)
     {

@@ -8,6 +8,7 @@ using CODA.RegistryParser.Lists;
 #endregion
 
 namespace CODA.RegistryParser;
+
 public class RegistrySkeleton
 {
     #region Fields
@@ -60,7 +61,7 @@ public class RegistrySkeleton
 
         if (hiveKey == null) return false;
 
-        if (key.KeyPath.StartsWith(_hive.Root.KeyName) == false)
+        if (_hive.Root is not null && key.KeyPath.StartsWith(_hive.Root.KeyName) == false)
         {
             var newKeyPath = $"{_hive.Root.KeyName}\\{key.KeyPath}";
             var tempKey = new SkeletonKeyRoot(newKeyPath, key.AddValues, key.Recursive);
@@ -105,7 +106,7 @@ public class RegistrySkeleton
 
     public bool RemoveEntry(SkeletonKeyRoot key)
     {
-        if (key.KeyPath.StartsWith(_hive.Root.KeyName) == false)
+        if (_hive.Root is not null && key.KeyPath.StartsWith(_hive.Root.KeyName) == false)
         {
             var newKeyPath = $"{_hive.Root.KeyName}\\{key.KeyPath}";
             var tempKey = new SkeletonKeyRoot(newKeyPath, key.AddValues, key.Recursive);
@@ -152,8 +153,11 @@ public class RegistrySkeleton
 
 
         var treeKey = BuildKeyTree();
-
-        var parentOffset = ProcessSkeletonTree(treeKey); //always include keys/values for now
+        int parentOffset = -1;
+        if (treeKey is not null)
+        {
+            parentOffset = ProcessSkeletonTree(treeKey); //always include keys/values for now
+        }
 
         //mark any remaining hbin as free
         var freeSize = _hbin.Length - _currentOffsetInHbin;
@@ -201,7 +205,7 @@ public class RegistrySkeleton
             _currentOffsetInHbin = _hbin.Length;
 
             //we have to make our hbin at least as big as the data that needs to go in it, so figure that out
-            var hbinBaseSize = (int) Math.Ceiling(recordSize / (double) 4096);
+            var hbinBaseSize = (int)Math.Ceiling(recordSize / (double)4096);
             var hbinSize = hbinBaseSize * 0x1000;
 
             //add more space
@@ -218,43 +222,30 @@ public class RegistrySkeleton
 
         var sk = _hive.CellRecords[skIndex] as SkCellRecord;
 
-        if (_skMap.ContainsKey(sk.RelativeOffset))
-            //sk is already in _hbin
-            return _skMap[sk.RelativeOffset];
+        if (sk is not null)
+        {
+            if (_skMap.ContainsKey(sk.RelativeOffset))
+                //sk is already in _hbin
+                return _skMap[sk.RelativeOffset];
 
-        CheckhbinSize(sk.RawBytes.Length);
-        sk.RawBytes.CopyTo(_hbin, _currentOffsetInHbin);
+            CheckhbinSize(sk.RawBytes.Length);
+            sk.RawBytes.CopyTo(_hbin, _currentOffsetInHbin);
 
-        var skOffset = _currentOffsetInHbin;
-        _skMap.Add(sk.RelativeOffset, skOffset);
-        _currentOffsetInHbin += sk.RawBytes.Length;
-        return skOffset;
+            var skOffset = _currentOffsetInHbin;
+            _skMap.Add(sk.RelativeOffset, skOffset);
+            _currentOffsetInHbin += sk.RawBytes.Length;
+            return skOffset;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     private int ProcessClassCell(uint classcellId)
     {
         //todo make this work
         return 0;
-
-//            if (classcellId == 0)
-//            {
-//                return 0;
-//            }
-//
-//            var dataLenBytes = _hive.ReadBytesFromHive(classcellId + 4096, 4);
-//            var dataLen = BitConverter.ToUInt32(dataLenBytes, 0);
-//            var size = (int) dataLen;
-//            size = Math.Abs(size);
-//
-//            var dn = new DataNode(_hive.ReadBytesFromHive(classcellId + 4096, size), classcellId);
-//
-//            //write it out, return offset
-//            CheckhbinSize(dn.RawBytes.Length);
-//            dn.RawBytes.CopyTo(_hbin, _currentOffsetInHbin);
-//
-//            _currentOffsetInHbin += dn.RawBytes.Length;
-//
-//            return _currentOffsetInHbin;
     }
 
     private int ProcessValue(KeyValue value)
@@ -349,7 +340,7 @@ public class RegistrySkeleton
                     BitConverter.GetBytes(-16)
                         .Concat(Encoding.ASCII.GetBytes("db"))
                         .Concat(
-                            BitConverter.GetBytes((short) dbOffsets.Count)
+                            BitConverter.GetBytes((short)dbOffsets.Count)
                                 .Concat(BitConverter.GetBytes(offsetOffset)))
                         .Concat(new byte[4])
                         .ToArray();
@@ -534,9 +525,16 @@ public class RegistrySkeleton
 
         var key = _hive.GetKey(treeKey.KeyPath);
 
+        if (key is not null)
+        {
         var parentOffset = ProcessKey(key, -1, treeKey.AddValues, true);
 
         return parentOffset;
+        }
+        else
+        {
+            return -1;
+        }
     }
 
 
@@ -548,7 +546,7 @@ public class RegistrySkeleton
 
         BitConverter.GetBytes(-1 * totalSize).CopyTo(listBytes, 0);
         Encoding.ASCII.GetBytes("lf").CopyTo(listBytes, 4);
-        BitConverter.GetBytes((short) subkeyInfo.Count).CopyTo(listBytes, 6);
+        BitConverter.GetBytes((short)subkeyInfo.Count).CopyTo(listBytes, 6);
 
         var index = 0x8;
 
@@ -564,9 +562,9 @@ public class RegistrySkeleton
         return new LxListRecord(listBytes, 0);
     }
 
-    private SkeletonKey BuildKeyTree()
+    private SkeletonKey? BuildKeyTree()
     {
-        SkeletonKey root = null;
+        SkeletonKey? root = null;
 
         foreach (var keyRoot in _keys)
         {
@@ -587,20 +585,22 @@ public class RegistrySkeleton
                     current = root;
                     continue;
                 }
-
-                if (current.KeyName == segs.First() && seg == segs.First()) continue;
-
-                if (current.Subkeys.Any(t => t.KeyName == seg))
+                if (current is not null)
                 {
-                    current = current.Subkeys.Single(t => t.KeyName == seg);
-                    continue;
+                    if (current.KeyName == segs.First() && seg == segs.First()) continue;
+
+                    if (current.Subkeys.Any(t => t.KeyName == seg))
+                    {
+                        current = current.Subkeys.Single(t => t.KeyName == seg);
+                        continue;
+                    }
+
+                    if (seg == segs.Last()) withVals = keyRoot.AddValues;
+
+                    var sk = new SkeletonKey($"{current.KeyPath}\\{seg}", seg, withVals);
+                    current.Subkeys.Add(sk);
+                    current = sk;
                 }
-
-                if (seg == segs.Last()) withVals = keyRoot.AddValues;
-
-                var sk = new SkeletonKey($"{current.KeyPath}\\{seg}", seg, withVals);
-                current.Subkeys.Add(sk);
-                current = sk;
             }
         }
 

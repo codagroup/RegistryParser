@@ -4,6 +4,7 @@ using CODA.RegistryParser.Other;
 #endregion
 
 namespace CODA.RegistryParser.Cells;
+
 public class NkCellRecord : ICellTemplate, IRecordBase
 {
     #region Enums
@@ -105,9 +106,9 @@ public class NkCellRecord : ICellTemplate, IRecordBase
     public byte Debug => RawBytes[0x3b];
 
     //TODO Layer semantics?
-    public AccessFlag Access => (AccessFlag) BitConverter.ToInt32(RawBytes, 0x10);
+    public AccessFlag Access => (AccessFlag)BitConverter.ToInt32(RawBytes, 0x10);
 
-    public FlagEnum Flags => (FlagEnum) BitConverter.ToUInt16(RawBytes, 6);
+    public FlagEnum Flags => (FlagEnum)BitConverter.ToUInt16(RawBytes, 6);
 
     /// <summary>
     ///     The last write time of this key
@@ -138,19 +139,31 @@ public class NkCellRecord : ICellTemplate, IRecordBase
         get
         {
             string name;
+            Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
 
             if ((Flags & FlagEnum.CompressedName) == FlagEnum.CompressedName)
             {
                 if (IsFree)
                 {
-                    if (RawBytes.Length >= 0x50 + NameLength)
-                        name = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(RawBytes, 0x50, NameLength);
+                    if (RawBytes.Length >= 0x50 + NameLength && encoding is not null)
+                    {
+                        name = encoding.GetString(RawBytes, 0x50, NameLength);
+                    }
                     else
+                    {
                         name = "(Unable to determine name)";
+                    }
                 }
                 else
                 {
-                    name = CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(RawBytes, 0x50, NameLength);
+                    if (encoding is not null)
+                    {
+                        name = encoding.GetString(RawBytes, 0x50, NameLength);
+                    }
+                    else
+                    {
+                        name = "(Unable to determine name)";
+                    }
                 }
             }
             else
@@ -182,7 +195,7 @@ public class NkCellRecord : ICellTemplate, IRecordBase
 
             var paddingOffset = 0x50 + NameLength;
 
-            var paddingBlock = (int) Math.Ceiling((double) paddingOffset / 8);
+            var paddingBlock = (int)Math.Ceiling((double)paddingOffset / 8);
 
             var actualPaddingOffset = paddingBlock * 8;
 
@@ -255,7 +268,7 @@ public class NkCellRecord : ICellTemplate, IRecordBase
         {
             var rawFlags = Convert.ToString(RawBytes[0x3a], 2).PadLeft(8, '0');
 
-            return (UserFlag) Convert.ToInt32(rawFlags.Substring(0, 4));
+            return (UserFlag)Convert.ToInt32(rawFlags.Substring(0, 4));
         }
     }
 
@@ -285,7 +298,7 @@ public class NkCellRecord : ICellTemplate, IRecordBase
         {
             var rawFlags = Convert.ToString(RawBytes[0x3a], 2).PadLeft(8, '0');
 
-            return (VirtualizationControlFlag) Convert.ToInt32(rawFlags.Substring(4, 4));
+            return (VirtualizationControlFlag)Convert.ToInt32(rawFlags.Substring(4, 4));
         }
     }
 
@@ -312,7 +325,21 @@ public class NkCellRecord : ICellTemplate, IRecordBase
 
     public long RelativeOffset { get; }
 
-    public string Signature => CodePagesEncodingProvider.Instance.GetEncoding(1252).GetString(RawBytes, 4, 2);
+    public string Signature
+    {
+        get
+        {
+            Encoding? encoding = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+            if (encoding is not null)
+            {
+                return encoding.GetString(RawBytes, 4, 2);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+    }
 
     public int Size => Math.Abs(BitConverter.ToInt32(RawBytes, 0));
     #endregion

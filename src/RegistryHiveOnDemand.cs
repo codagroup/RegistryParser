@@ -9,6 +9,7 @@ using static CODA.RegistryParser.Other.Helpers;
 #endregion
 
 namespace CODA.RegistryParser;
+
 public class RegistryHiveOnDemand : RegistryBase
 {
     #region Constructors
@@ -25,57 +26,28 @@ public class RegistryHiveOnDemand : RegistryBase
     {
         var keys = new List<RegistryKey>();
 
-        //    Logger.Trace("Looking for list record at relative offset 0x{0:X}", subkeyListsStableCellIndex);
-
         var rawList = GetRawRecord(subkeyListsStableCellIndex);
 
         var l = GetListFromRawBytes(rawList, subkeyListsStableCellIndex);
-
-        var sig = BitConverter.ToInt16(l.RawBytes, 4);
-
-        switch (sig)
+        if (l is not null)
         {
-            case LfSignature:
-            case LhSignature:
-                var lxRecord = l as LxListRecord;
-                foreach (var offset in lxRecord.Offsets)
-                {
-                    //           Logger.Trace("In lf or lh, looking for nk record at relative offset 0x{0:X}", offset);
-                    var rawCell = GetRawRecord(offset.Key);
-                    var nk = new NkCellRecord(rawCell.Length, offset.Key, this);
+            var sig = BitConverter.ToInt16(l.RawBytes, 4);
 
-                    Log.Debug("In lf or lh, found nk record at relative offset {Offset}. Name: {Name}",
-                        $"0x{offset.Key:X}",
-                        nk.Name);
-
-                    var tempKey = new RegistryKey(nk, parent);
-
-                    keys.Add(tempKey);
-                }
-
-                break;
-
-            case RiSignature:
-                var riRecord = l as RiListRecord;
-                foreach (var offset in riRecord.Offsets)
-                {
-                    //            Logger.Trace("In ri, looking for list record at relative offset 0x{0:X}", offset);
-                    rawList = GetRawRecord(offset);
-
-                    var tempList = GetListFromRawBytes(rawList, offset);
-
-                    //templist is now an li or lh list 
-
-                    if (tempList.Signature == "li")
+            switch (sig)
+            {
+                case LfSignature:
+                case LhSignature:
+                    var lxRecord = l as LxListRecord;
+                    if (lxRecord is not null)
                     {
-                        var sk3 = tempList as LiListRecord;
-
-                        foreach (var offset1 in sk3.Offsets)
+                        foreach (var offset in lxRecord!.Offsets)
                         {
-                            Log.Verbose("In ri/li, looking for nk record at relative offset {Offset}",
-                                $"0x{offset1:X}");
-                            var rawCell = GetRawRecord(offset1);
-                            var nk = new NkCellRecord(rawCell.Length, offset1, this);
+                            var rawCell = GetRawRecord(offset.Key);
+                            var nk = new NkCellRecord(rawCell.Length, offset.Key, this);
+
+                            Log.Debug("In lf or lh, found nk record at relative offset {Offset}. Name: {Name}",
+                                $"0x{offset.Key:X}",
+                                nk.Name);
 
                             var tempKey = new RegistryKey(nk, parent);
 
@@ -84,43 +56,103 @@ public class RegistryHiveOnDemand : RegistryBase
                     }
                     else
                     {
-                        var lxRecord1 = tempList as LxListRecord;
+                        throw new NullReferenceException("Subkey Parsing Failed.");
+                    }
+                    break;
 
-                        foreach (var offset3 in lxRecord1.Offsets)
+                case RiSignature:
+                    var riRecord = l as RiListRecord;
+                    if (riRecord is not null)
+                    {
+                        foreach (var offset in riRecord!.Offsets)
                         {
-                            //      Logger.Trace("In ri/li, looking for nk record at relative offset 0x{0:X}", offset3);
-                            var rawCell = GetRawRecord(offset3.Key);
-                            var nk = new NkCellRecord(rawCell.Length, offset3.Key, this);
+                            rawList = GetRawRecord(offset);
+
+                            var tempList = GetListFromRawBytes(rawList, offset);
+
+                            //templist is now an li or lh list 
+
+                            if (tempList.Signature == "li")
+                            {
+                                var sk3 = tempList as LiListRecord;
+                                if (sk3 is not null)
+                                {
+                                foreach (var offset1 in sk3!.Offsets)
+                                {
+                                    Log.Verbose("In ri/li, looking for nk record at relative offset {Offset}",
+                                        $"0x{offset1:X}");
+                                    var rawCell = GetRawRecord(offset1);
+                                    var nk = new NkCellRecord(rawCell.Length, offset1, this);
+
+                                    var tempKey = new RegistryKey(nk, parent);
+
+                                    keys.Add(tempKey);
+                                }
+                                }
+                                else
+                                {
+                                    throw new NullReferenceException("Subkey Parsing Failed.");
+                                }
+                            }
+                            else
+                            {
+                                var lxRecord1 = tempList as LxListRecord;
+                                if (lxRecord1 is not null)
+                                {
+                                    foreach (var offset3 in lxRecord1!.Offsets)
+                                    {
+                                        var rawCell = GetRawRecord(offset3.Key);
+                                        var nk = new NkCellRecord(rawCell.Length, offset3.Key, this);
+
+                                        var tempKey = new RegistryKey(nk, parent);
+
+                                        keys.Add(tempKey);
+                                    }
+                                }
+                                else
+                                {
+                                    throw new NullReferenceException("Subkey Parsing Failed.");
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("Subkey Parsing Failed.");
+                    }
+                    break;
+
+                //this is a safety net, but li's are typically only seen in RI lists. as such, don't use it in metrics
+
+                case LiSignature:
+                    var liRecord = l as LiListRecord;
+                    if (liRecord is not null)
+                    {
+                        foreach (var offset in liRecord!.Offsets)
+                        {
+                            Log.Debug("In li, looking for nk record at relative offset {Offset}", $"0x{offset:X}");
+                            var rawCell = GetRawRecord(offset);
+                            var nk = new NkCellRecord(rawCell.Length, offset, this);
 
                             var tempKey = new RegistryKey(nk, parent);
-
                             keys.Add(tempKey);
                         }
                     }
-                }
+                    else
+                    {
+                        throw new NullReferenceException("Subkey Parsing Failed.");
+                    }
+                    break;
+                default:
+                    throw new Exception($"Unknown subkey list type {l.Signature}!");
+            }
 
-                break;
-
-            //this is a safety net, but li's are typically only seen in RI lists. as such, don't use it in metrics
-
-            case LiSignature:
-                var liRecord = l as LiListRecord;
-                foreach (var offset in liRecord.Offsets)
-                {
-                    Log.Debug("In li, looking for nk record at relative offset {Offset}", $"0x{offset:X}");
-                    var rawCell = GetRawRecord(offset);
-                    var nk = new NkCellRecord(rawCell.Length, offset, this);
-
-                    var tempKey = new RegistryKey(nk, parent);
-                    keys.Add(tempKey);
-                }
-
-                break;
-            default:
-                throw new Exception($"Unknown subkey list type {l.Signature}!");
+            return keys;
         }
-
-        return keys;
+        else
+        {
+            throw new NullReferenceException("Subkey Parsing Failed.");
+        }
     }
 
     private List<KeyValue> GetKeyValues(uint valueListCellIndex, uint valueListCount)
@@ -131,35 +163,28 @@ public class RegistryHiveOnDemand : RegistryBase
 
         if (valueListCellIndex > 0)
         {
-            //      Logger.Trace("Getting value list offset at relative offset 0x{0:X}. Value count is {1:N0}",
-            //      valueListCellIndex, valueListCount);
-
             var offsetList = GetDataNodeFromOffset(valueListCellIndex);
 
             for (var i = 0; i < valueListCount; i++)
             {
                 //use i * 4 so we get 4, 8, 12, 16, etc
                 var os = BitConverter.ToUInt32(offsetList.Data, i * 4);
-                //     Logger.Trace("Got value offset 0x{0:X}", os);
+
                 offsets.Add(os);
             }
         }
 
         if (offsets.Count != valueListCount)
-            
+
             Log.Debug(
                 "Value count mismatch! ValueListCount is {ValueListCount:N0} but NKRecord.ValueOffsets.Count is {Count:N0}",
-                
+
                 valueListCount, offsets.Count);
 
         foreach (var valueOffset in offsets)
         {
-            //       Logger.Trace("Looking for vk record at relative offset 0x{0:X}", valueOffset);
-
             var rawVk = GetRawRecord(valueOffset);
             var vk = new VkCellRecord(rawVk.Length, valueOffset, Header.MinorVersion, this);
-
-            //    Logger.Trace("Found vk record at relative offset 0x{0:X}. Value name: {1}", valueOffset, vk.ValueName);
             var value = new KeyValue(vk);
             values.Add(value);
         }
@@ -181,7 +206,7 @@ public class RegistryHiveOnDemand : RegistryBase
             case LiSignature:
                 return new LiListRecord(rawBytes, relativeOffset);
             default:
-                throw new Exception($"Unknown list signature: {sig}"); 
+                throw new Exception($"Unknown list signature: {sig}");
         }
     }
 
@@ -189,7 +214,7 @@ public class RegistryHiveOnDemand : RegistryBase
     {
         var dataLenBytes = ReadBytesFromHive(relativeOffset + 4096, 4);
         var dataLen = BitConverter.ToUInt32(dataLenBytes, 0);
-        var size = (int) dataLen;
+        var size = (int)dataLen;
         size = Math.Abs(size);
 
         var dn = new DataNode(ReadBytesFromHive(relativeOffset + 4096, size), relativeOffset);
@@ -209,7 +234,7 @@ public class RegistryHiveOnDemand : RegistryBase
         return ReadBytesFromHive(absOffset, size);
     }
 
-    public RegistryKey GetKey(string keyPath)
+    public RegistryKey? GetKey(string keyPath)
     {
         var rawRoot = GetRawRecord(Header.RootCellOffset);
 
@@ -226,7 +251,7 @@ public class RegistryHiveOnDemand : RegistryBase
 
         var rootKey = new RegistryKey(rootNk, null);
 
-        var keyNames = newPath.Split(new[] {'\\'}, StringSplitOptions.RemoveEmptyEntries);
+        var keyNames = newPath.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
         rootKey.SubKeys.AddRange(GetSubkeys(rootKey.NkRecord.SubkeyListsStableCellIndex, rootKey));
 
@@ -249,13 +274,10 @@ public class RegistryHiveOnDemand : RegistryBase
 
         if (finalKey.NkRecord.ClassCellIndex > 0)
         {
-            //     Logger.Trace("Getting Class cell information at relative offset 0x{0:X}",
-            //   finalKey.NkRecord.ClassCellIndex);
             var d = GetDataNodeFromOffset(finalKey.NkRecord.ClassCellIndex);
             d.IsReferenced = true;
             var clsName = Encoding.Unicode.GetString(d.Data, 0, finalKey.NkRecord.ClassLength);
             finalKey.ClassName = clsName;
-            //     Logger.Trace("Class name found {0}", clsName);
         }
 
         return finalKey;
